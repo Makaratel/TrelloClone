@@ -40,24 +40,25 @@ let Application = {
 	},
 
 	load () {
-		if (localStorage.getItem('trello')) {
-			document.querySelector('.columns').innerHTML = '';
-
-			let object = JSON.parse(localStorage.getItem('trello'));
-			let getNoteById = id => object.notes.items.find(note => note.id === id);
-
-			object.columns.items.forEach(column => {
-				let columnElement = Column.createColumn(column.id);
-				let notes = columnElement.querySelector('[data-notes]');
-				
-					column.notesId.forEach(note => {
-						let noteElement = getNoteById(note);
-						let createdNote = Note.createNote(noteElement.id, noteElement.content);
-						console.log(noteElement.content);
-						notes.appendChild(createdNote);
-					})
-				
-			})
+		if (!localStorage.getItem('trello')) {
+			Application.save()
 		}
+
+		document.querySelector('.columns').innerHTML = '';
+
+		let object = JSON.parse(localStorage.getItem('trello'));
+		let getNoteById = id => object.notes.items.find(note => note.id === id);
+
+		object.columns.items.forEach(column => {
+			let columnElement =  new Column(column.id, column.title);
+			let notes = columnElement.element.querySelector('[data-notes]');
+			
+			column.notesId.forEach(note => {
+				let {id, content} = getNoteById(note);
+				let createdNote = new Note(id, content);
+				notes.appendChild(createdNote.element);
+			})
+		})
+		
 	}
 }
